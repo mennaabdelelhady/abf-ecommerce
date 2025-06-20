@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\QuoteController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -61,6 +62,9 @@ Route::post('/verify-code', [\App\Http\Controllers\Auth\ForgotPasswordController
 Route::post('/reset-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'resetPassword']);
 
 
-//p
+//products
 Route::get('/products', [\App\Http\Controllers\Api\ProductController::class, 'index']);
 Route::get('/products/{id}', [\App\Http\Controllers\Api\ProductController::class, 'show']);
+
+//Quotes
+Route::post('/quotes', [QuoteController::class, 'store']);
