@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -15,26 +16,25 @@ class ForgotPasswordController extends Controller
 {
     //
     // Generate a unique token
-     public function sendResetLink(Request $request)
+    public function sendResetLink(Request $request)
     {
         $request->validate([
             'email' => 'required|email|exists:users,email',
         ]);
 
-        $user = \App\Models\User::where('email', $request->email)->first();
         $token = Str::random(60);
 
-        // Save the token in the database
+        // Hash the token before storing it
         DB::table('password_resets')->insert([
             'email' => $request->email,
-            'token' => $token,
+            'token' => Hash::make($token),
             'created_at' => now(),
         ]);
 
-        // Send the reset link via email
+        // Send email with token
         Mail::to($request->email)->send(new ResetPasswordMail($token));
 
-        return response()->json(['message' => 'Reset link sent'], 200);
+        return response()->json(['message' => 'Reset link sent']);
     }
 
     public function verifyCode(Request $request)
@@ -47,11 +47,10 @@ class ForgotPasswordController extends Controller
         $reset = DB::table('password_resets')
             ->where([
                 'email' => $request->email,
-                'token' => $request->token,
             ])
             ->first();
 
-        if (!$reset) {
+        if (!$reset ) {
             return response()->json(['message' => 'Invalid or expired token.'], 401);
         }
 
@@ -72,7 +71,6 @@ class ForgotPasswordController extends Controller
         $reset = DB::table('password_resets')
             ->where([
                 'email' => $request->email,
-                'token' => $request->token,
             ])
             ->first();
 
